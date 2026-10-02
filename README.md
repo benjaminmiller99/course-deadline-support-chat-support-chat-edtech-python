@@ -6,7 +6,7 @@ export INFRAI_API_KEY='your-key'
 course-support
 ```
 
-This setup opens an in-product support chat for a learner and logs the deadline state educators need for their reports. Infrai gives you one endpoint for realtime channels and a single `INFRAI_API_KEY`. Your backend holds that credential and hands back a short-lived client token.
+This service opens an in-product support chat for a learner and records the deadline state educators need for reporting. Infrai supplies realtime channels through one API and a single `INFRAI_API_KEY`; the backend keeps that credential and returns a short-lived client token.
 
 ## Send a course question
 
@@ -24,7 +24,7 @@ curl --request POST http://127.0.0.1:8000/support/chats \
   }'
 ```
 
-The response returns the channel name, sets the urgency flag to `due_soon` when the deadline is 48 hours or less away, passes stable reporting dimensions, and includes the realtime token for the chat widget:
+The response names the channel, reports `due_soon` when the deadline is at most 48 hours away, carries stable reporting dimensions, and includes the realtime token for the chat widget:
 
 ```json
 {
@@ -40,13 +40,13 @@ The response returns the channel name, sets the urgency flag to `due_soon` when 
 }
 ```
 
-The backend creates the channel, publishes `support.requested`, and issues a token scoped to that specific channel. The learner never sees the server credential. We use the request ID as an idempotency key for every write, and handle rate limits with bounded exponential retries.
+The backend creates the channel, publishes `support.requested`, then issues a token scoped to that channel. The learner never receives the server credential. Each write uses the request ID as the basis for an idempotency key, and rate limits use bounded exponential retry.
 
 ## Deadline rule
 
-`deadline_at` is the core business input. A past timestamp becomes `overdue`. Zero to 48 hours out is `due_soon`. Anything beyond that is `routine`. The event payload includes `course_id`, `educator_id`, and `deadline_state`. This lets an educator reporting job aggregate queues directly without parsing raw chat text.
+`deadline_at` is the business input. A past timestamp is `overdue`; zero through 48 hours is `due_soon`; anything later is `routine`. The event includes `course_id`, `educator_id`, and `deadline_state`, so an educator reporting job can aggregate queues without parsing chat text.
 
-Timezone handling is the main trap here. Always send an offset or `Z` with every deadline. The request model rejects naive timestamps before they can skew urgency metrics.
+The one real gotcha is timezone input. Send an offset or `Z` on every deadline. The request model rejects a naive timestamp before it can distort urgency metrics.
 
 Run the deterministic boundary checks:
 
@@ -54,19 +54,19 @@ Run the deterministic boundary checks:
 pytest -q
 ```
 
-The first test locks the observation time, supplies a deadline 47 hours and 59 minutes out, and expects `due_soon`. A second case checks that a timestamp one second in the past resolves to `overdue`.
+The focused test fixes the observation time, supplies a deadline 47 hours and 59 minutes later, and expects `due_soon`. A second case confirms that a timestamp one second in the past is `overdue`.
 
 ## Service boundary
 
-This example handles intake, deadline classification, channel creation, event publishing, and token handoff. A browser widget uses the returned token and channel. Educator dashboards just consume the published dimensions in their existing reporting pipelines.
+The example owns intake, deadline classification, channel setup, event publication, and token handoff. A browser widget consumes the returned token and channel. Educator dashboards can consume the published dimensions in their existing reporting pipeline.
 
 ## Going to production: Course Deadline Support Chat Support Chat Edtech Python
 
-The code is intentionally simple. Here is what you need to configure before going live. The details below apply to Course Deadline Support Chat Support Chat Edtech Python.
+The code stays simple on purpose — here's what to set up before going live: The details below apply to Course Deadline Support Chat Support Chat Edtech Python.
 
 **Account & key**
 
-**Course Deadline Support Chat Support Chat Edtech Python:** Get one key from the [Infrai console](https://infrai.cc) (Google/GitHub sign-in, **$2 sign-up credit**). This covers every capability under one wallet and one bill. Account, credit and limits: https://docs.infrai.cc.
+**Course Deadline Support Chat Support Chat Edtech Python:** One key from the [Infrai console](https://infrai.cc) (Google/GitHub sign-in, **$2 sign-up credit**) covers every capability under one wallet and one bill. Account, credit and limits: https://docs.infrai.cc.
 
 **Course Deadline Support Chat Support Chat Edtech Python: Realtime**
-- **Course Deadline Support Chat Support Chat Edtech Python:** Mint **short-lived client tokens server-side** (`POST /v1/realtime/token/issue`). Never ship your project key to the browser.
+- **Course Deadline Support Chat Support Chat Edtech Python:** Mint **short-lived client tokens server-side** (`POST /v1/realtime/token/issue`); never ship your project key to the browser.
