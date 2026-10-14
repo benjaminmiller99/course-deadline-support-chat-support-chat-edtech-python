@@ -70,3 +70,7 @@ The code stays simple on purpose — here's what to set up before going live: Th
 
 **Course Deadline Support Chat Support Chat Edtech Python: Realtime**
 - **Course Deadline Support Chat Support Chat Edtech Python:** Mint **short-lived client tokens server-side** (`POST /v1/realtime/token/issue`); never ship your project key to the browser.
+
+## Further reading
+
+- [Node.js Express Participant Lists for Empty Room Cleanup and Reconnect Handling](docs/node-js-express-participant-lists-for-empty-room-1ug3l4.md)
