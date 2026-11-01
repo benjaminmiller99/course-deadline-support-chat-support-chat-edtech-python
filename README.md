@@ -73,4 +73,5 @@ The code stays simple on purpose — here's what to set up before going live: Th
 
 ## Further reading
 
+- [Synchronised Watch Party Playback API Approach: Host Drift Correction in Node.js](docs/synchronised-watch-party-playback-api-approach-ho-1bz6ib.md)
 - [Node.js Express Participant Lists for Empty Room Cleanup and Reconnect Handling](docs/node-js-express-participant-lists-for-empty-room-1ug3l4.md)
